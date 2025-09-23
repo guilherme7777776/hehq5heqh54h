@@ -83,10 +83,10 @@ exports.obterPessoa = async (req, res) => {
     const id_pessoa = parseInt(req.params.id);
     
     if (isNaN(id_pessoa)) {
-      console.log(id_pessoa,"qiofhewehfpoihewfhwoei");
+      
       return res.status(400).json({ error: 'id_pessoa deve ser um número válido' });
     }
-    console.log(id_pessoa)
+    
 
     const result = await query(
       'SELECT * FROM PESSOA WHERE id_pessoa = $1',
@@ -106,7 +106,7 @@ exports.obterPessoa = async (req, res) => {
 
 exports.atualizarPessoa = async (req, res) => {
   try {
-    const id_pessoa = parseInt(req.params.id_pessoa);
+    const id_pessoa = parseInt(req.params.id);
     const {
       nome_pessoa,
       email_pessoa,
@@ -178,7 +178,7 @@ exports.atualizarPessoa = async (req, res) => {
 
 exports.deletarPessoa = async (req, res) => {
   try {
-    const id_pessoa = parseInt(req.params.id_pessoa);
+    const id_pessoa = parseInt(req.params.id);
 
     if (isNaN(id_pessoa)) {
       return res.status(400).json({ error: 'id_pessoa deve ser um número válido' });
@@ -238,7 +238,7 @@ exports.obterPessoaPorEmail = async (req, res) => {
 // Atualizar somente senha
 exports.atualizarSenha = async (req, res) => {
   try {
-    const id_pessoa = parseInt(req.params.id_pessoa);
+    const id_pessoa = parseInt(req.params.id);
     const { senha_atual, nova_senha } = req.body;
 
     if (isNaN(id_pessoa)) {
