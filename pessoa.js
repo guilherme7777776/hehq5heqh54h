@@ -1,4 +1,5 @@
 
+
 // Configuração da API, IP e porta.
 const API_BASE_URL = 'http://localhost:3001';
 let currentPersonId = null;
@@ -57,10 +58,7 @@ function bloquearCampos(bloquearPrimeiro) {
 // Função para limpar formulário
 function limparFormulario() {
     form.reset();
-    document.getElementById('mnemonicoProfessor').value = '';
-    document.getElementById('departamentoProfessor').value = '';
-    document.getElementById('checkboxAvaliador').checked = false;    
-    document.getElementById('checkboxAvaliado').checked = false;
+    
 }
 
 
@@ -109,7 +107,7 @@ async function buscarPessoa() {
             preencherFormulario(pessoa);
             console.log(1);
 
-            mostrarBotoes(true, false, true, true, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
+            mostrarBotoes(false, false, true, true, false, true);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
             mostrarMensagem('Pessoa encontrada!', 'success');
 
         } else if (response.status === 404) {
@@ -159,6 +157,7 @@ async function incluirPessoa() {
 
     mostrarMensagem('Digite os dados!', 'success');
     currentPersonId = searchId.value;
+
     // console.log('Incluir nova pessoa - currentPersonId: ' + currentPersonId);
     limparFormulario();
     searchId.value = currentPersonId;
@@ -183,6 +182,8 @@ async function alterarPessoa() {
 async function excluirPessoa() {
     mostrarMensagem('Excluindo pessoa...', 'info');
     currentPersonId = searchId.value;
+    
+    
     //bloquear searchId
     searchId.disabled = true;
     bloquearCampos(false); // libera os demais campos
@@ -193,14 +194,15 @@ console.log()
 async function salvarOperacao() {
     const formData = new FormData(form);
     const pessoa = {
-        id_pessoa: searchId.value,
+        id_pessoa: currentPersonId.value,
         nome_pessoa: formData.get('nome_pessoa'),
         email_pessoa: formData.get('email_pessoa'),
         senha_pessoa: formData.get('senha_pessoa'),
-        primeiro_acesso_pessoa: formData.get('primeiro_acesso_pessoa') === 'true',
-        data_nascimento: formData.get('data_nascimento') || null
+        endereco_pessoa: formData.get('endereco_pessoa'),
+        data_nascimento: formData.get('data_nascimento')
     };
-
+    
+    
     try {
         let responsePessoa;
 
@@ -232,7 +234,20 @@ async function salvarOperacao() {
             mostrarMensagem('Operação ' + operacao + ' realizada com sucesso!', 'success');
             limparFormulario();
             carregarPessoas();
-            renderizarTabelaPessoas(pessoas);
+            try {
+                const response = await fetch(`${API_BASE_URL}/pessoa`);
+                console.log("weghouiwhegiow",response);
+        
+                if (response.ok) {
+                    const pessoas = await response.json();
+                    renderizarTabelaPessoas(pessoas);
+                } else {
+                    throw new Error('Erro ao carregar pessoas');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarMensagem('Erro ao carregar lista de pessoas', 'error');
+            }
 
         } else if (operacao !== 'excluir') {
             const error = await responsePessoa.json();
@@ -242,7 +257,21 @@ async function salvarOperacao() {
             mostrarMensagem('Pessoa excluída com sucesso!', 'success');
             limparFormulario();
             carregarPessoas();
-            renderizarTabelaPessoas(pessoas);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/pessoa`);
+                console.log("weghouiwhegiow",response);
+        
+                if (response.ok) {
+                    const pessoas = await response.json();
+                    renderizarTabelaPessoas(pessoas);
+                } else {
+                    throw new Error('Erro ao carregar pessoas');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarMensagem('Erro ao carregar lista de pessoas', 'error');
+            }
         }
 
     } catch (error) {
@@ -294,9 +323,11 @@ async function carregarPessoas() {
 
 // Função para renderizar tabela de pessoas
 function renderizarTabelaPessoas(pessoas) {
+    
     pessoasTableBody.innerHTML = '';
 
     pessoas.forEach(pessoa => {
+        console.log(pessoa.nome_pessoa,pessoa.email_pessoa,pessoa.senha_pessoa,pessoa.endereco_pessoa,pessoa.telefone_pessoa);
         const row = document.createElement('tr');
         row.innerHTML = `
                     <td>
